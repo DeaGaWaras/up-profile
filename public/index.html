@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload with Name</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+    <link rel="icon" href="assets/ci.ico" type="image/x-icon" />
+    <script type="text/javascript" src="assets/js/script.js"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <meta property="og:title" content="Character Calestial" />
+    <meta property="og:description" content="Calestials Server" />
+    <meta property="og:image" content="./assets/thumb.png" />
+    <!-- Javascript -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+    <style>
+        #particles-js {
+            position: absolute;
+            width: 99%;
+            height: 95%;
+            z-index: -1;
+        }
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#status {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+#imagePreview img {
+    margin-top: 20px;
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.blue-color {
+    color: blue;
+}
+
+.green-color {
+    color: green;
+}
+
+.teal-color {
+    color: teal;
+}
+
+.yellow-color {
+    color: yellow;
+}
+
+.red-color {
+    color: red;
+}
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div class="container">
+        <h1>Upload Image</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="nameInput">Name:</label>
+                <input type="text" id="nameInput" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="fileInput">Select Image:</label>
+                <input type="file" id="fileInput" name="image" accept="image/*" required>
+            </div>
+            <button type="submit">Upload</button>
+        </form>
+        <div id="status"></div>
+        <div id="imagePreview"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const nameInput = document.getElementById('nameInput').value;
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (file && nameInput) {
+                const formData = new FormData();
+                formData.append('name', nameInput);
+                formData.append('image', file);
+
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('status').innerText = data.message;
+                    if (data.file) {
+                        const img = document.createElement('img');
+                        img.src = URL.createObjectURL(file);
+                        img.style.maxWidth = '100%';
+                        document.getElementById('imagePreview').innerHTML = '';
+                        document.getElementById('imagePreview').appendChild(img);
+                    } else {
+                        // Jika terjadi kesalahan, kosongkan formulir dan tampilkan pesan
+                        document.getElementById('uploadForm').reset();
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('status').innerText = 'Upload failed: ' + error.message;
+                    document.getElementById('uploadForm').reset();
+                });
+            } else {
+                document.getElementById('status').innerText = 'Please fill in all fields.';
+            }
+        });
+
+        particlesJS("particles-js", {
+        "particles": {
+            "number": {
+                "value": 100, 
+                "density": {
+                    "enable": true,
+                    "value_area": 1000
+                }
+            },
+            "color": {
+                "value": "#66ccff" 
+            },
+            "shape": {
+                "type": "circle", // Mengatur bentuk partikel menjadi bintang
+                "stroke": {
+                    "width": 0,
+                    "color": "#ffffff"
+                },
+            },
+            "opacity": {
+                "value": 0.6, // Mengubah tingkat kejelasan partikel
+                "random": true,
+                "anim": {
+                    "enable": true,
+                    "speed": 0.5,
+                    "opacity_min": 0.3,
+                    "sync": false
+                }
+            },
+            "size": {
+                "value": 5, // Mengubah ukuran partikel
+                "random": false,
+                "anim": {
+                    "enable": true,
+                    "speed": 2,
+                    "size_min": 0.1,
+                    "sync": false
+                }
+            },
+        },
+        "interactivity": {
+            "events": {
+                "onhover": {
+                    "enable": false, // Nonaktifkan efek saat mouse hover
+                    "mode": "repulse"
+                }
+            },
+        },
+        "line_linked": {
+            "enable": false // Nonaktifkan jaring-jaring
+        },
+    });
+    </script>
+</body>
+</html>
